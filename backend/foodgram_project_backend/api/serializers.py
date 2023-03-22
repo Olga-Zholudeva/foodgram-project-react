@@ -1,14 +1,16 @@
+import base64
+
 from django.core.files.base import ContentFile
 from rest_framework import serializers
-from recipes.models import Ingredient, Recept, ReceptTabel, Tag, Favorite, ShoppingCart
-from users.serializers import GetUserSerializer
 
-import base64
+from recipes.models import (Favorite, Ingredient, Recept, ReceptTabel,
+                            ShoppingCart, Tag)
+from users.serializers import GetUserSerializer
 
 
 class TagSerializer(serializers.ModelSerializer):
     """ Сериализатор для получения данных из модели с тегами."""
-    
+
     class Meta:
         fields = (
             'id', 'name', 'color', 'slug',
@@ -18,7 +20,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 class IngredientSerializer(serializers.ModelSerializer):
     """ Сериализатор для получения данных из модели с ингрединтами."""
-    
+
     class Meta:
         fields = '__all__'
         model = Ingredient
@@ -36,12 +38,12 @@ class Base64ImageField(serializers.ImageField):
 
 
 class ReceptTabelSerializer(serializers.ModelSerializer):
-    """ Сериализатор для создания записи в промежуточной таблице игнредиетов."""
+    """Сериализатор для создания записи в промежуточной таблице игнредиетов"""
 
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all()
     )
-    
+
     class Meta:
         fields = (
             'id', 'amount'
@@ -53,15 +55,17 @@ class CreateReceptSerializer(serializers.ModelSerializer):
     """ Сериализатор для создания и изменения рецепта."""
 
     ingredients = ReceptTabelSerializer(many=True)
-    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Tag.objects.all()
+    )
     image = Base64ImageField(required=True)
-    
+
     class Meta:
         fields = (
             'name', 'image', 'text', 'ingredients', 'tags', 'cooking_time'
         )
         model = Recept
-    
+
     def recepttabel_objects_create(self, ingredients, recept):
         for ingredient in ingredients:
             ReceptTabel.objects.create(
@@ -69,7 +73,7 @@ class CreateReceptSerializer(serializers.ModelSerializer):
                 ingredient=ingredient.get('id'),
                 amount=ingredient.get('amount'),
             )
-    
+
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
@@ -77,12 +81,14 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         recept.tags.set(tags)
         self.recepttabel_objects_create(ingredients, recept)
         return recept
-    
+
     def update(self, instance, validated_data):
         instance.image = validated_data.get('image', instance.image)
         instance.name = validated_data.get('name', instance.name)
         instance.text = validated_data.get('text', instance.text)
-        instance.cooking_time = validated_data.get('cooking_time', instance.cooking_time)
+        instance.cooking_time = validated_data.get(
+            'cooking_time', instance.cooking_time
+        )
         ReceptTabel.objects.filter(recept=instance).delete()
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
@@ -91,17 +97,19 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    
     def to_representation(self, instance):
         return GetReceptSerializer(instance).data
 
+
 class GetReceptTabelSerializer(serializers.ModelSerializer):
-    """ Сериализатор для получения данных для чтения из промежуточной модели ингредиентов."""
+    """Получаем данные для чтения из промежуточной модели ингредиентов."""
 
     name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
     amount = serializers.ReadOnlyField()
-    
+
     class Meta:
         fields = ('id', 'name', 'measurement_unit', 'amount')
         model = ReceptTabel
@@ -129,7 +137,7 @@ class GetReceptSerializer(serializers.ModelSerializer):
             'cooking_time',
         )
         model = Recept
-    
+
     def get_is_favorited(self, object):
         request = self.context.get('request')
         if request.user.is_anonymous:
@@ -137,7 +145,7 @@ class GetReceptSerializer(serializers.ModelSerializer):
         return Favorite.objects.filter(
             user=request.user, recept=object
         ).exists()
-    
+
     def get_is_in_shopping_cart(self, object):
         request = self.context.get('request')
         if request.user.is_anonymous:

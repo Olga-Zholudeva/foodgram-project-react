@@ -1,9 +1,10 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+
 from users.models import User
 
-
 COUNT_ING = int(1)
+
 
 class Tag(models.Model):
     name = models.CharField(
@@ -80,6 +81,7 @@ class Recept(models.Model):
     def __str__(self):
         return self.name
 
+
 class ReceptTabel(models.Model):
     recept = models.ForeignKey(
         Recept,
@@ -101,6 +103,7 @@ class ReceptTabel(models.Model):
         )
     )
 
+
 class Favorite(models.Model):
     user = models.ForeignKey(
         User,
@@ -119,6 +122,7 @@ class Favorite(models.Model):
                 name='unique_user_recept'
                 )
             ]
+
 
 class ShoppingCart(models.Model):
     user = models.ForeignKey(

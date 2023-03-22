@@ -1,15 +1,16 @@
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.response import Response
-from api.serializers import CreateReceptSerializer, IngredientSerializer, GetReceptSerializer, TagSerializer
-from recipes.models import Favorite, Ingredient, Recept, ReceptTabel, ShoppingCart, Tag
-from rest_framework import filters, viewsets
+
+from api.permissions import AuthorOrReadOnly
+from api.serializers import (CreateReceptSerializer, GetReceptSerializer,
+                             IngredientSerializer, TagSerializer)
+from recipes.models import (Favorite, Ingredient, Recept, ReceptTabel,
+                            ShoppingCart, Tag)
 from users.models import Follow, User
 from users.serializers import GetFollowUserSerializer, ShortReceptSerializer
-from rest_framework import status
-from django.db.models import Sum
-from rest_framework import permissions
-from api.permissions import AuthorOrReadOnly
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -34,8 +35,9 @@ class ReceptViewSet(viewsets.ModelViewSet):
     permission_classes = [AuthorOrReadOnly]
 
     def get_queryset(self):
-        queryset = Recept.objects.all()
-        is_in_shopping_cart = self.request.query_params.get('is_in_shopping_cart')
+        is_in_shopping_cart = self.request.query_params.get(
+            'is_in_shopping_cart'
+        )
         is_favorited = self.request.query_params.get('is_favorited')
         author = self.request.query_params.get('author')
         tags = self.request.query_params.get('tags')
@@ -55,17 +57,16 @@ class ReceptViewSet(viewsets.ModelViewSet):
             return Recept.objects.filter(
                 tags__slug__iregex=tags
             )
-        return queryset
+        return Recept.objects.all()
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
             return GetReceptSerializer
         return CreateReceptSerializer
-    
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-        
 
 class FollowViewSet(viewsets.ModelViewSet):
     """Подписка на авторов."""
@@ -93,14 +94,14 @@ class FollowViewSet(viewsets.ModelViewSet):
             )
         serializer = GetFollowUserSerializer(
             get_object_or_404(
-            Follow, user=request.user, author=author
+                Follow, user=request.user, author=author
             ),
             many=False
         )
         return Response(
             data=serializer.data, status=status.HTTP_201_CREATED
         )
-    
+
     def delete(self, request, id):
         author = get_object_or_404(User, id=id)
         follow = Follow.objects.filter(
@@ -116,13 +117,14 @@ class FollowViewSet(viewsets.ModelViewSet):
             status=status.HTTP_204_NO_CONTENT
         )
 
+
 class FavoriteViewSet(viewsets.ViewSet):
     """Добавление рецепта в избранное."""
     permission_classes = [permissions.IsAuthenticated]
-   
+
     def get_queryset(self):
-       return Favorite.objects.filter(user=self.request.user)
-    
+        return Favorite.objects.filter(user=self.request.user)
+
     def create(self, request, id):
         recept = get_object_or_404(Recept, id=id)
         if Favorite.objects.filter(user=request.user, recept=recept):
@@ -139,7 +141,7 @@ class FavoriteViewSet(viewsets.ViewSet):
             many=False
         )
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-    
+
     def delete(self, request, id):
         recept = get_object_or_404(Recept, id=id)
         favorite = Favorite.objects.filter(
@@ -154,15 +156,16 @@ class FavoriteViewSet(viewsets.ViewSet):
         return Response(
             status=status.HTTP_204_NO_CONTENT
         )
-    
+
+
 class ShoppingCartViewSet(viewsets.ViewSet):
     """Добавление/удаление рецепта в писок покупок."""
     permission_classes = [permissions.IsAuthenticated]
-    
+
     def get_queryset(self):
         return ShoppingCart.objects.filter(user=self.request.user)
-    
-    def create (self, request, id):
+
+    def create(self, request, id):
         recept = get_object_or_404(Recept, id=id)
         if ShoppingCart.objects.filter(user=request.user, recept=recept):
             return Response(
@@ -178,7 +181,7 @@ class ShoppingCartViewSet(viewsets.ViewSet):
             many=False
         )
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-    
+
     def delete(self, request, id):
         recept = get_object_or_404(Recept, id=id)
         shoppingcart = ShoppingCart.objects.filter(
@@ -191,6 +194,7 @@ class ShoppingCartViewSet(viewsets.ViewSet):
             )
         shoppingcart.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class DownloadSoppingCartViewSet(viewsets.ViewSet):
     """Выгрузка файла со списком покупок."""
@@ -220,4 +224,3 @@ class DownloadSoppingCartViewSet(viewsets.ViewSet):
             'attachment; filename=shoping_list.txt'
         )
         return response
-    

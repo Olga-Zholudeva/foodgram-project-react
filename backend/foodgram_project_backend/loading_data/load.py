@@ -1,6 +1,6 @@
-from recipes.models import Ingredient
-
 import csv
+
+from recipes.models import Ingredient
 
 
 def run():
