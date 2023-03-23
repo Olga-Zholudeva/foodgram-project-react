@@ -2,7 +2,8 @@ from django.contrib import admin
 
 from recipes.models import (Favorite, Ingredient, Recept, ReceptTabel,
                             ShoppingCart, Tag)
-from users.models import Follow, User
+from users.models import Follow
+from users.serializers import User
 
 
 class UserAdmin(admin.ModelAdmin):

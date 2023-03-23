@@ -1,7 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from users.models import User
+from users.serializers import User
 
 COUNT_ING = int(1)
 

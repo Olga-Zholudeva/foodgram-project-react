@@ -9,12 +9,13 @@ from api.serializers import (CreateReceptSerializer, GetReceptSerializer,
                              IngredientSerializer, TagSerializer)
 from recipes.models import (Favorite, Ingredient, Recept, ReceptTabel,
                             ShoppingCart, Tag)
-from users.models import Follow, User
-from users.serializers import GetFollowUserSerializer, ShortReceptSerializer
+from users.models import Follow
+from users.serializers import (GetFollowUserSerializer, ShortReceptSerializer,
+                               User)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    """Образатываем запросы к модели тегов."""
+    """Обрабатываем запросы к модели тегов."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
@@ -159,7 +160,7 @@ class FavoriteViewSet(viewsets.ViewSet):
 
 
 class ShoppingCartViewSet(viewsets.ViewSet):
-    """Добавление/удаление рецепта в писок покупок."""
+    """Добавление/удаление рецепта в список покупок."""
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):

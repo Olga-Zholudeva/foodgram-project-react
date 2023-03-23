@@ -38,7 +38,7 @@ class Base64ImageField(serializers.ImageField):
 
 
 class ReceptTabelSerializer(serializers.ModelSerializer):
-    """Сериализатор для создания записи в промежуточной таблице игнредиетов"""
+    """Сериализатор для создания записи в промежуточной таблице ингредиентов"""
 
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all()
