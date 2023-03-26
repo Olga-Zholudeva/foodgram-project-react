@@ -62,7 +62,8 @@ class ReceptViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(
                 tags__slug__in=tags
             ).distinct()
-        return queryset
+        else:
+            return queryset
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
