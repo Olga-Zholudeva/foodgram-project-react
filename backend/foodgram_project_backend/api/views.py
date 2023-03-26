@@ -1,5 +1,4 @@
 from api.filters import IngredientFilter
-from api.pagination import LimitPagination
 from api.permissions import AuthorOrReadOnly
 from api.serializers import (CreateReceptSerializer, GetReceptSerializer,
                              IngredientSerializer, TagSerializer)
