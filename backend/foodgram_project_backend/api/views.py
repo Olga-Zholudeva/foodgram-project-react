@@ -39,6 +39,7 @@ class ReceptViewSet(viewsets.ModelViewSet):
     permission_classes = [AuthorOrReadOnly, ]
 
     def get_queryset(self):
+        queryset = Recept.objects.all()
         is_in_shopping_cart = self.request.query_params.get(
             'is_in_shopping_cart'
         )
@@ -61,7 +62,7 @@ class ReceptViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(
                 tags__slug__in=tags
             ).distinct()
-        return Recept.objects.all()
+        return queryset
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
