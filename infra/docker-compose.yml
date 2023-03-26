@@ -7,11 +7,10 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: always
     env_file:
-      # - ../backend/.env
       - ./.env
 
   backend:
-    image: olgazholudeva/infra_sp2:latest
+    image: olgazholudeva/foodgram_backend:latest
     restart: always
     volumes:
       - static_value:/app/static/
@@ -19,14 +18,11 @@ services:
     depends_on:
       - db
     env_file:
-      # - ../backend/.env
       - ./.env
 
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: olgazholudeva/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
