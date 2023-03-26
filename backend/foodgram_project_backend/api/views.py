@@ -59,14 +59,9 @@ class ReceptViewSet(viewsets.ModelViewSet):
                 author_id=author
             )
         if tags:
-            tags = queryset.filter(
+            queryset = queryset.filter(
                 tags__slug__in=tags
-            )
-            queryset = []
-            for recept in tags:
-                if recept in queryset:
-                    return queryset
-                queryset.append(recept)
+            ).distinct()
         return queryset
 
     def get_serializer_class(self):
