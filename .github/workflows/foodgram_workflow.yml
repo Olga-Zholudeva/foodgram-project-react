@@ -41,7 +41,7 @@ jobs:
           uses: docker/build-push-action@v2 
           with:
             push: true
-            context: backend/
+            context: backend/foodgram_project_backend/
             tags: olgazholudeva/foodgram:latest
             file: backend/foodgram_project_backend/Dockerfile
 
