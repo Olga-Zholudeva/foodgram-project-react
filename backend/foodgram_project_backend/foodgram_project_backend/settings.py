@@ -8,7 +8,7 @@ SECRET_KEY = 'django-insecure-9$%i_py$7&mm6y&-1^z*(k^7xs^tuo7&7743-p&5xi%k0i3$+#
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', 'localhost' , '178.154.192.118']
+ALLOWED_HOSTS = ['*', 'localhost', '178.154.192.118']
 
 
 AUTH_USER_MODEL = 'users.User'
@@ -111,7 +111,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -123,8 +122,8 @@ USE_L10N = True
 USE_TZ = True
 
 
-STATIC_URL = '/static/' # префикс для url
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/') # папка, в которой будет лежать статика
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

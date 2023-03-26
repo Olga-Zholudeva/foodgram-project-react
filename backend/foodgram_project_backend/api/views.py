@@ -101,9 +101,9 @@ class FollowViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         Follow.objects.create(
-                user=request.user,
-                author=author
-            )
+            user=request.user,
+            author=author
+        )
         serializer = GetFollowUserSerializer(
             get_object_or_404(
                 Follow, user=request.user, author=author

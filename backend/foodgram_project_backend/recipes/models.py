@@ -55,7 +55,7 @@ class Recept(models.Model):
     image = models.ImageField(
         'Изображение блюда',
         upload_to='recipes/images/'
-        )
+    )
     text = models.TextField(
         'Как приготовить блюдо'
     )
@@ -121,8 +121,8 @@ class Favorite(models.Model):
             models.UniqueConstraint(
                 fields=['user', 'recept'],
                 name='unique_user_recept'
-                )
-            ]
+            )
+        ]
 
 
 class ShoppingCart(models.Model):
@@ -142,5 +142,5 @@ class ShoppingCart(models.Model):
             models.UniqueConstraint(
                 fields=['user', 'recept'],
                 name='unique_user_recept_shopping_cart'
-                )
-            ]
+            )
+        ]
