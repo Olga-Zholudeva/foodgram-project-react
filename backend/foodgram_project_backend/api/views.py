@@ -38,7 +38,6 @@ class ReceptViewSet(viewsets.ModelViewSet):
     """Обрабатываем запросы к модели рецептов."""
     http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = [AuthorOrReadOnly, ]
-    pagination_class = LimitPagination
 
     def get_queryset(self):
         queryset = Recept.objects.all()
