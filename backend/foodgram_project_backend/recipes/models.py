@@ -1,7 +1,8 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from users.serializers import User
+User = get_user_model()
 
 COUNT_ING = int(1)
 

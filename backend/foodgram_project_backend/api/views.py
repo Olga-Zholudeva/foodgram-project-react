@@ -1,17 +1,21 @@
-from django.db.models import Sum
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from rest_framework import filters, permissions, status, viewsets
-from rest_framework.response import Response
-
+from api.filters import IngredientFilter
+from api.pagination import LimitPagination
 from api.permissions import AuthorOrReadOnly
 from api.serializers import (CreateReceptSerializer, GetReceptSerializer,
                              IngredientSerializer, TagSerializer)
+from django.contrib.auth import get_user_model
+from django.db.models import Sum
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recept, ReceptTabel,
                             ShoppingCart, Tag)
+from rest_framework import permissions, status, viewsets
+from rest_framework.response import Response
 from users.models import Follow
-from users.serializers import (GetFollowUserSerializer, ShortReceptSerializer,
-                               User)
+from users.serializers import GetFollowUserSerializer, ShortReceptSerializer
+
+User = get_user_model()
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -26,39 +30,46 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('^name',)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter
 
 
 class ReceptViewSet(viewsets.ModelViewSet):
     """Обрабатываем запросы к модели рецептов."""
     http_method_names = ['get', 'post', 'patch', 'delete']
-    permission_classes = [AuthorOrReadOnly]
+    permission_classes = [AuthorOrReadOnly, ]
+    pagination_class = LimitPagination
 
     def get_queryset(self):
+        queryset = Recept.objects.all()
         is_in_shopping_cart = self.request.query_params.get(
             'is_in_shopping_cart'
         )
         is_favorited = self.request.query_params.get('is_favorited')
         author = self.request.query_params.get('author')
-        tags = self.request.query_params.get('tags')
+        tags = self.request.query_params.getlist('tags')
         if is_in_shopping_cart == '1':
-            return Recept.objects.filter(
+            queryset = queryset.filter(
                 shopping_cart__user=self.request.user
             )
         if is_favorited == '1':
-            return Recept.objects.filter(
+            queryset = queryset.filter(
                 favorite__user=self.request.user
             )
         if author:
-            return Recept.objects.filter(
+            queryset = queryset.filter(
                 author_id=author
             )
         if tags:
-            return Recept.objects.filter(
-                tags__slug__iregex=tags
+            tags = queryset.filter(
+                tags__slug__in=tags
             )
-        return Recept.objects.all()
+            queryset = []
+            for recept in tags:
+                if recept in queryset:
+                    return queryset
+                queryset.append(recept)
+        return queryset
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:

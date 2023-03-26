@@ -1,10 +1,9 @@
 import base64
 
 from django.core.files.base import ContentFile
-from rest_framework import serializers
-
 from recipes.models import (Favorite, Ingredient, Recept, ReceptTabel,
                             ShoppingCart, Tag)
+from rest_framework import serializers
 from users.serializers import GetUserSerializer
 
 
@@ -140,7 +139,7 @@ class GetReceptSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, object):
         request = self.context.get('request')
-        if request.user.is_anonymous:
+        if not request or request.user.is_anonymous:
             return False
         return Favorite.objects.filter(
             user=request.user, recept=object
@@ -148,7 +147,7 @@ class GetReceptSerializer(serializers.ModelSerializer):
 
     def get_is_in_shopping_cart(self, object):
         request = self.context.get('request')
-        if request.user.is_anonymous:
+        if not request or request.user.is_anonymous:
             return False
         return ShoppingCart.objects.filter(
             user=request.user, recept=object

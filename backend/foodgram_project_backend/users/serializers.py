@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from rest_framework import serializers
-
 from recipes.models import Recept
+from rest_framework import serializers
 from users.models import Follow
 
 User = get_user_model()
@@ -25,7 +24,7 @@ class GetUserSerializer(UserSerializer):
 
     def get_is_subscribed(self, object):
         request = self.context.get('request')
-        if request.user.is_anonymous:
+        if not request or request.user.is_anonymous:
             return False
         return Follow.objects.filter(
             user=request.user, author=object
@@ -72,8 +71,17 @@ class GetFollowUserSerializer(serializers.ModelSerializer):
         model = Follow
 
     def get_recipes(self, id):
-        recipes = Recept.objects.filter(author=id.author)
-        return ShortReceptSerializer(recipes, many=True).data
+        try:
+            recept_limit = int(
+                self.context.get('request').query_params['recipes_limit']
+            )
+            queryset = Recept.objects.filter(author=id.author)[:recept_limit]
+        except Exception:
+            queryset = Recept.objects.filter(author=id.author)
+        serializer = ShortReceptSerializer(
+            queryset, read_only=True, many=True
+        )
+        return serializer.data
 
     def get_recipes_count(self, id):
         return Recept.objects.filter(author=id.author).count()
