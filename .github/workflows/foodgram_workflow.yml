@@ -43,7 +43,7 @@ jobs:
             push: true
             context: backend/
             tags: olgazholudeva/foodgram:latest
-            file: backend/Dockerfile
+            file: foodgram_project_backend/backend/Dockerfile
 
   deploy:
       runs-on: ubuntu-latest
