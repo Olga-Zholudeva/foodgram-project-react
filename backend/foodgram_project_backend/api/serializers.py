@@ -4,6 +4,7 @@ from django.core.files.base import ContentFile
 from recipes.models import (Favorite, Ingredient, Recept, ReceptTabel,
                             ShoppingCart, Tag)
 from rest_framework import serializers
+from rest_framework.fields import IntegerField
 from users.serializers import GetUserSerializer
 
 
@@ -39,9 +40,7 @@ class Base64ImageField(serializers.ImageField):
 class ReceptTabelSerializer(serializers.ModelSerializer):
     """Сериализатор для создания записи в промежуточной таблице ингредиентов"""
 
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all()
-    )
+    id = IntegerField(write_only=True)
 
     class Meta:
         fields = (
@@ -79,7 +78,7 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             ReceptTabel.objects.create(
                 recept=recept,
-                ingredient=10,
+                ingredient=ingredient.get(id=ingredient['id']),
                 amount=ingredient.get('amount'),
             )
 
