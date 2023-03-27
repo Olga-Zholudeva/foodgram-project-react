@@ -64,12 +64,12 @@ class CreateReceptSerializer(serializers.ModelSerializer):
             'name', 'image', 'text', 'ingredients', 'tags', 'cooking_time'
         )
         model = Recept
-    
-    def tag_create(tags, recept):
+
+    def tag_create(self, tags, recept):
         for tag in tags:
             recept.tags.add(tag)
 
-    def recepttabel_objects_create(ingredients, recept):
+    def recepttabel_objects_create(self, ingredients, recept):
         for ingredient in ingredients:
             ReceptTabel.objects.create(
                 recept=recept,
