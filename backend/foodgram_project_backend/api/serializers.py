@@ -1,7 +1,6 @@
 import base64
 
 from django.core.files.base import ContentFile
-from django.shortcuts import get_object_or_404
 from recipes.models import (Favorite, Ingredient, Recept, ReceptTabel,
                             ShoppingCart, Tag)
 from rest_framework import serializers
@@ -65,8 +64,12 @@ class CreateReceptSerializer(serializers.ModelSerializer):
             'name', 'image', 'text', 'ingredients', 'tags', 'cooking_time'
         )
         model = Recept
+    
+    def tag_create(tags, recept):
+        for tag in tags:
+            recept.tags.add(tag)
 
-    def recepttabel_objects_create(self, ingredients, recept):
+    def recepttabel_objects_create(ingredients, recept):
         for ingredient in ingredients:
             ReceptTabel.objects.create(
                 recept=recept,
@@ -78,7 +81,7 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recept = Recept.objects.create(**validated_data)
-        recept.tags.set(tags)
+        self.tag_create(tags, recept)
         self.recepttabel_objects_create(ingredients, recept)
         return recept
 
@@ -89,23 +92,13 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         instance.cooking_time = validated_data.get(
             'cooking_time', instance.cooking_time
         )
+        instance.tags.clear()
         ReceptTabel.objects.filter(recept=instance).delete()
         tags = validated_data.pop('tags')
-        instance.tags.set(tags)
-        ingredients = validated_data.pop('ingredients', None)
-        if ingredients is not None:
-            instance.ingredients.clear()
-
-            for ingredient in ingredients:
-                amount = ingredient['amount']
-                ingredient = get_object_or_404(Ingredient, pk=ingredient['id'])
-                ReceptTabel.objects.update_or_create(
-                    recipe=instance,
-                    ingredient=ingredient,
-                    defaults={'amount': amount}
-                )
-        instance.save()
-        return instance
+        self.tag_create(tags, instance)
+        ingredients = validated_data.pop('ingredients')
+        self.recepttabel_objects_create(ingredients, instance)
+        return super().update(instance, validated_data)
 
     def to_representation(self, instance):
         return GetReceptSerializer(instance).data
