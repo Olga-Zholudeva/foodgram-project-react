@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'recipes.apps.RecipesConfig',
     'users.apps.UserConfig',
     'django_extensions',
+    'django.contrib.postgres',
 ]
 
 DJOSER = {
