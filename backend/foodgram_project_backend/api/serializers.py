@@ -91,12 +91,10 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         ReceptTabel.objects.filter(recept=instance).delete()
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        if tags:
-            instance.tags.clear()
-        if ingredients:
-            instance.ingredients.clear()
-        self.ingredient_tag_in_instance(instance, ingredients, tags)
-        return super().update(instance, validated_data)
+        instance.tags.set(tags)
+        self.recepttabel_objects_create(ingredients, instance)
+        instance.save()
+        return instance
 
     def to_representation(self, instance):
         return GetReceptSerializer(instance).data
