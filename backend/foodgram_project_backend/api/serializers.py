@@ -76,9 +76,9 @@ class CreateReceptSerializer(serializers.ModelSerializer):
 
     def recepttabel_objects_create(self, ingredients, recept):
         for ingredient in ingredients:
-            ReceptTabel.objects.create(
+            ReceptTabel.objects.get_or_create(
                 recept=recept,
-                ingredient='i',
+                ingredient=ingredient['id'],
                 amount=ingredient.get('amount'),
             )
 
