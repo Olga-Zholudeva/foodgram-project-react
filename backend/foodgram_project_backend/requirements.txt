@@ -14,3 +14,4 @@ flake8-isort==6.0.0
 gunicorn==20.0.4
 psycopg2-binary==2.8.6
 django-filter==22.1
+django-case-insensitive-field==1.0.7

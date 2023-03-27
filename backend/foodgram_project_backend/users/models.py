@@ -1,10 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
+from users.fields import LowerEmailField
 
 
 class User(AbstractUser):
-    email = models.CIEmailField(
+    email = LowerEmailField(
         max_length=254, unique=True, blank=False)
     username = models.CharField(
         max_length=150,
