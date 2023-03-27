@@ -92,7 +92,7 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         instance.tags.set(tags)
-        self.recepttabel_objects_update_or_create(ingredients, instance)
+        self.recepttabel_objects_create(ingredients, instance)
         instance.save()
         return instance
 
