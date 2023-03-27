@@ -1,6 +1,7 @@
 import base64
 
 from django.core.files.base import ContentFile
+from django.shortcuts import get_object_or_404
 from recipes.models import (Favorite, Ingredient, Recept, ReceptTabel,
                             ShoppingCart, Tag)
 from rest_framework import serializers
@@ -69,7 +70,7 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             ReceptTabel.objects.create(
                 recept=recept,
-                ingredient=Ingredient.objects.get(id=ingredient['id']),
+                ingredient=ingredient.get('id'),
                 amount=ingredient.get('amount'),
             )
 
@@ -90,9 +91,19 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         )
         ReceptTabel.objects.filter(recept=instance).delete()
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
         instance.tags.set(tags)
-        self.recepttabel_objects_create(ingredients, instance)
+        ingredients = validated_data.pop('ingredients', None)
+        if ingredients is not None:
+            instance.ingredients.clear()
+
+            for ingredient in ingredients:
+                amount = ingredient['amount']
+                ingredient = get_object_or_404(Ingredient, pk=ingredient['id'])
+                ReceptTabel.objects.update_or_create(
+                    recipe=instance,
+                    ingredient=ingredient,
+                    defaults={'amount': amount}
+                )
         instance.save()
         return instance
 
