@@ -90,10 +90,10 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         )
         ReceptTabel.objects.filter(recept=instance).delete()
         tags = validated_data.pop('tags')
+        instance.tags.set(tags)
         ingredients = validated_data.pop('ingredients', None)
         if ingredients is not None:
             instance.ingredients.clear()
-        instance.tags.set(tags)
         self.recepttabel_objects_create(ingredients, instance)
         instance.save()
         return instance
