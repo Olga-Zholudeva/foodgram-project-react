@@ -1,5 +1,6 @@
-from django_case_insensitive_field import CaseInsensitiveFieldMixin
 from django.db.models import EmailField
+from django_case_insensitive_field import CaseInsensitiveFieldMixin
+
 
 class LowerEmailField(CaseInsensitiveFieldMixin, EmailField):
 
