@@ -4,7 +4,6 @@ from django.core.files.base import ContentFile
 from recipes.models import (Favorite, Ingredient, Recept, ReceptTabel,
                             ShoppingCart, Tag)
 from rest_framework import serializers
-from rest_framework.fields import IntegerField
 from users.serializers import GetUserSerializer
 
 
@@ -40,7 +39,9 @@ class Base64ImageField(serializers.ImageField):
 class ReceptTabelSerializer(serializers.ModelSerializer):
     """Сериализатор для создания записи в промежуточной таблице ингредиентов"""
 
-    id = IntegerField(write_only=True)
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all()
+    )
 
     class Meta:
         fields = (
@@ -59,20 +60,10 @@ class CreateReceptSerializer(serializers.ModelSerializer):
     image = Base64ImageField(required=True)
 
     class Meta:
-        fields = (
-            'id',
-            'name',
-            'image',
-            'text',
-            'ingredients',
-            'tags',
-            'cooking_time'
+        fields = ('name', 'image', 'text', 'ingredients', 'tags', 'cooking_time'
         )
         model = Recept
 
-    def tag_create(self, tags, recept):
-        for tag in tags:
-            recept.tags.add(tag)
 
     def recepttabel_objects_create(self, ingredients, recept):
         for ingredient in ingredients:
@@ -86,7 +77,7 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recept = Recept.objects.create(**validated_data)
-        self.tag_create(tags, recept)
+        recept.tags.set(tags)
         self.recepttabel_objects_create(ingredients, recept)
         return recept
 
@@ -97,13 +88,13 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         instance.cooking_time = validated_data.get(
             'cooking_time', instance.cooking_time
         )
-        instance.tags.clear()
         ReceptTabel.objects.filter(recept=instance).delete()
         tags = validated_data.pop('tags')
-        self.tag_create(tags, instance)
         ingredients = validated_data.pop('ingredients')
+        instance.tags.set(tags)
         self.recepttabel_objects_create(ingredients, instance)
-        return super().update(instance, validated_data)
+        instance.save()
+        return instance
 
     def to_representation(self, instance):
         return GetReceptSerializer(instance).data
@@ -111,7 +102,7 @@ class CreateReceptSerializer(serializers.ModelSerializer):
 
 class GetReceptTabelSerializer(serializers.ModelSerializer):
     """Получаем данные для чтения из промежуточной модели ингредиентов."""
-
+    id = serializers.ReadOnlyField(sourse='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
