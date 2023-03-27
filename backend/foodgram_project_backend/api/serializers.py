@@ -61,7 +61,13 @@ class CreateReceptSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = (
-            'id', 'name', 'image', 'text', 'ingredients', 'tags', 'cooking_time'
+            'id',
+            'name',
+            'image',
+            'text',
+            'ingredients',
+            'tags',
+            'cooking_time'
         )
         model = Recept
 
