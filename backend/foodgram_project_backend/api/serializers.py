@@ -88,6 +88,7 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         instance.cooking_time = validated_data.get(
             'cooking_time', instance.cooking_time
         )
+        instance.ingredients = validated_data('ingredients', instance.ingredients)
         ReceptTabel.objects.filter(recept=instance).delete()
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
