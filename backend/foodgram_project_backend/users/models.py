@@ -4,7 +4,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    email = models.EmailField(
+    email = models.CIEmailField(
         max_length=254, unique=True, blank=False)
     username = models.CharField(
         max_length=150,
