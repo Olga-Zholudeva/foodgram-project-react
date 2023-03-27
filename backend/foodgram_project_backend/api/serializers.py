@@ -102,7 +102,7 @@ class CreateReceptSerializer(serializers.ModelSerializer):
 
 class GetReceptTabelSerializer(serializers.ModelSerializer):
     """Получаем данные для чтения из промежуточной модели ингредиентов."""
-    id = serializers.ReadOnlyField(sourse='ingredient.id')
+    id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
