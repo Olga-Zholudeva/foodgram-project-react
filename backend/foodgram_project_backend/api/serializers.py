@@ -88,16 +88,11 @@ class CreateReceptSerializer(serializers.ModelSerializer):
         instance.cooking_time = validated_data.get(
             'cooking_time', instance.cooking_time
         )
-        tags = validated_data.pop('tags')
-        instance.tags.set(tags)
         ReceptTabel.objects.filter(recept=instance).delete()
-        ingredients = validated_data.pop('recepttable_set')
-        for ingredient in ingredients:
-            ReceptTabel.objects.create(
-                ingredient=ingredient.get('ingredient').get('id'),
-                recept=instance,
-                amount=ingredient.get('amount')
-            )
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        instance.tags.set(tags)
+        self.recepttabel_objects_create(ingredients, instance)
         instance.save()
         return instance
 
