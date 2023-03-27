@@ -60,10 +60,10 @@ class CreateReceptSerializer(serializers.ModelSerializer):
     image = Base64ImageField(required=True)
 
     class Meta:
-        fields = ('name', 'image', 'text', 'ingredients', 'tags', 'cooking_time'
+        fields = (
+            'name','image', 'text', 'ingredients', 'tags', 'cooking_time'
         )
         model = Recept
-
 
     def recepttabel_objects_create(self, ingredients, recept):
         for ingredient in ingredients:
